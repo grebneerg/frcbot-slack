@@ -11,12 +11,27 @@ String slVerificationToken;
 HttpServer server;
 
 Future main(List<String> args) async {
-    // tba = new TBA(Platform.environment["TBA_KEY"]);
-	// sl = new Slack(Platform.environment["SLACK_KEY"]);
+	int port;
+	print(port);
 
-	initAPIs(Platform.environment["TBA_KEY"], Platform.environment["SLACK_KEY"], Platform.environment["SLACK_VERIFICATION_TOKEN"]);
+	try {
+		File vars = new File("./config.json");
+		String v = await vars.readAsString();
+		Map<String, dynamic> varMap = JSON.decode(v);
+		initAPIs(varMap["TBA_KEY"], varMap["SLACK_KEY"], varMap["SLACK_VERIFICATION_TOKEN"]);
+		if (varMap["PORT"] != null) port = varMap["PORT"];
+	} catch (e) {
+		initAPIs(Platform.environment["TBA_KEY"], Platform.environment["SLACK_KEY"], Platform.environment["SLACK_VERIFICATION_TOKEN"]);
+	}
 
-	server = await HttpServer.bind('0.0.0.0', int.parse(Platform.environment["PORT"]));
+	
+	try {
+		port = int.parse(Platform.environment["PORT"]);
+	} catch (e) {
+		port ??= 8080;
+	}
+
+	server = await HttpServer.bind('0.0.0.0', port);
 
 	await for (HttpRequest req in server) {
 		handleRequest(req);
@@ -27,6 +42,8 @@ void initAPIs(String tbaKey, String slackKey, String slackVerificationToken) {
 	tba = new TBA(tbaKey);
 	sl = new Slack(slackKey);
 	slVerificationToken = slackVerificationToken;
+
+	print("tba: $tbaKey, slack key $slackKey, verification: $slackVerificationToken");
 }
 
 void handleRequest(HttpRequest req) {
