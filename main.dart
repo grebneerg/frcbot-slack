@@ -12,7 +12,6 @@ HttpServer server;
 
 Future main(List<String> args) async {
 	int port;
-	print(port);
 
 	try {
 		File vars = new File("./config.json");
@@ -42,8 +41,6 @@ void initAPIs(String tbaKey, String slackKey, String slackVerificationToken) {
 	tba = new TBA(tbaKey);
 	sl = new Slack(slackKey);
 	slVerificationToken = slackVerificationToken;
-
-	print("tba: $tbaKey, slack key $slackKey, verification: $slackVerificationToken");
 }
 
 void handleRequest(HttpRequest req) {
