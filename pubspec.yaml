@@ -1,4 +1,4 @@
 name: FRCbot_slack
 dependencies:
-  http_server: "^0.9.6"
   http: "^0.11.3+16"
+  appengine: ">=0.4.0 <0.5.0"

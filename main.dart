@@ -1,22 +1,32 @@
-import 'Slack.dart';
+import './slack/Slack.dart';
 import 'dart:async';
 import 'dart:convert' show JSON, UTF8;
 import 'dart:io';
-import './TBA.dart';
+import './TBA/TBA.dart';
 
 TBA tba;
 Slack sl;
+String slVerificationToken;
+
 HttpServer server;
 
 Future main(List<String> args) async {
-    tba = new TBA(Platform.environment["TBA_KEY"]);
-	sl = new Slack(Platform.environment["SLACK_KEY"]);
+    // tba = new TBA(Platform.environment["TBA_KEY"]);
+	// sl = new Slack(Platform.environment["SLACK_KEY"]);
+
+	initAPIs(Platform.environment["TBA_KEY"], Platform.environment["SLACK_KEY"], Platform.environment["SLACK_VERIFICATION_TOKEN"]);
 
 	server = await HttpServer.bind('0.0.0.0', int.parse(Platform.environment["PORT"]));
 
 	await for (HttpRequest req in server) {
 		handleRequest(req);
 	}
+}
+
+void initAPIs(String tbaKey, String slackKey, String slackVerificationToken) {
+	tba = new TBA(tbaKey);
+	sl = new Slack(slackKey);
+	slVerificationToken = slackVerificationToken;
 }
 
 void handleRequest(HttpRequest req) {
@@ -54,8 +64,8 @@ Future handlePost(HttpRequest req) async {
 	}
 }
 
-void handleEvent(Map<String, dynamic> json, HttpRequest req) async {
-	if (!json.containsKey("token") || json["token"] != Platform.environment["SLACK_VERIFICATION_TOKEN"]) {
+Future handleEvent(Map<String, dynamic> json, HttpRequest req) async {
+	if (!json.containsKey("token") || json["token"] != slVerificationToken) {
 		req.response
 			..statusCode = HttpStatus.UNAUTHORIZED
 			..write("Invalid verification token")
