@@ -1,8 +1,8 @@
-import 'Slack.dart';
+import './slack/Slack.dart';
 import 'dart:async';
 import 'dart:convert' show JSON, UTF8;
 import 'dart:io';
-import './TBA.dart';
+import './tba/TBA.dart';
 
 TBA tba;
 Slack sl;
