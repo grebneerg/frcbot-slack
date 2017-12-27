@@ -55,7 +55,12 @@ Future handlePost(HttpRequest req) async {
 }
 
 void handleEvent(Map<String, dynamic> json, HttpRequest req) async {
-	if (!json.containsKey("token") || json["token"] != Platform.environment["SLACK_VERIFICATION_TOKEN"]) {
+	if (new DateTime.now().millisecondsSinceEpoch - req.headers.date.millisecondsSinceEpoch > 2500) {
+		req.response
+			..statusCode = HttpStatus.INTERNAL_SERVER_ERROR
+			..write("Server was waking from sleep, please retry.")
+			..close();
+	} else if (!json.containsKey("token") || json["token"] != Platform.environment["SLACK_VERIFICATION_TOKEN"]) {
 		req.response
 			..statusCode = HttpStatus.UNAUTHORIZED
 			..write("Invalid verification token")
